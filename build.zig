@@ -10,9 +10,14 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
     // dependencies
-    // zgl
-    const zgl = b.dependency("zgl", .{ .target = target, .optimize = optimize });
-    exe.root_module.addImport("zgl", zgl.module("zgl"));
+    // zigglgen
+    const gl_bindings = @import("zigglgen").generateBindingsModule(b, .{
+        .api = .gl,
+        .version = .@"3.3", // following the book
+        .profile = .core,
+        .extensions = &.{ .ARB_clip_control, .NV_scissor_exclusive },
+    });
+    exe.root_module.addImport("gl", gl_bindings);
     // zglfw
     const zglfw = b.dependency("zglfw", .{ .target = target, .optimize = optimize });
     exe.root_module.addImport("zglfw", zglfw.module("glfw"));

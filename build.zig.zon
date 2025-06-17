@@ -36,9 +36,9 @@
             .url = "git+https://github.com/IridescenceTech/zglfw.git#5d25d66b3d4912c9cb66e4db9dfb80a6eecc84ad",
             .hash = "zglfw-0.1.0-BghZXfnRAACSrPga22je1XilEj1QNXrtv6w4HIUFqdks",
         },
-        .zgl = .{
-            .url = "git+https://github.com/ziglibs/zgl.git#f616514733b81e5b00cc2d839c83c8e529ff5c4f",
-            .hash = "zgl-1.1.0-p_NpABvCCgCJPOcp11QHacU02b1rVdXkWR9Xvjv68y9R",
+        .zigglgen = .{
+            .url = "git+https://github.com/castholm/zigglgen.git#d5f381759825ee0bac29bc294d47aa05be4ab7b5",
+            .hash = "zigglgen-0.4.0-bmyqLX_gLQDFXilQ5VQ9fJeOHKU1RFrggOzRqTGBX79W",
         },
     },
     .paths = .{
