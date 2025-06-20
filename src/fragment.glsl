@@ -1,8 +1,8 @@
 #version 330 core
-in vec4 vertexColor;
 out vec4 FragColor;
 
+uniform vec4 myColor; // set this in opengl code
 void main()
 {
-    FragColor = vertexColor;
+    FragColor = myColor;
 } 

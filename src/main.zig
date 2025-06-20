@@ -103,8 +103,13 @@ pub fn main() void {
         process_input(window);
         gl.ClearColor(0.2, 0.3, 0.3, 1.0);
         gl.Clear(gl.COLOR_BUFFER_BIT);
-        // DRAW triangle
         gl.UseProgram(shader_prog);
+        // update uniform
+        const time_value: f32 = @floatCast(glfw.getTime());
+        const green_value = (std.math.sin(time_value) / 2.0) + 0.5;
+        const vertex_color_location = gl.GetUniformLocation(shader_prog, "myColor");
+        gl.Uniform4f(vertex_color_location, 0.0, green_value, 0.0, 1.0);
+        // DRAW triangle
         gl.BindVertexArray(vao);
         gl.DrawArrays(gl.TRIANGLES, 0, 3);
         glfw.swapBuffers(window);
