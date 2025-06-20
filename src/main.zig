@@ -2,7 +2,18 @@ const std = @import("std");
 const glfw = @import("zglfw");
 const gl = @import("gl");
 
-const vertecies = [_]f32{ -0.5, -0.5, 0.0, 0.5, -0.5, 0.0, 0.0, 0.5, 0.0 };
+const vertecies = [_]f32{
+    0.5, 0.5, 0.0, // top right
+    0.5, -0.5, 0.0, // bottom right
+    -0.5, -0.5, 0.0, // bottom left
+    -0.5, 0.5, 0.0, // top left
+};
+
+const indices = [_]u32{
+    0, 1, 3, // first triangle
+    1, 2, 3, // second triangle
+};
+
 const vertex_shader = @embedFile("vertex.glsl");
 const fragment_shader = @embedFile("fragment.glsl");
 
@@ -75,13 +86,18 @@ pub fn main() void {
     // generate vao and vbo
     var vao: c_uint = undefined;
     var vbo: c_uint = undefined;
+    var ebo: c_uint = undefined;
     gl.GenBuffers(1, @ptrCast(&vbo));
     gl.GenVertexArrays(1, @ptrCast(&vao));
+    gl.GenBuffers(1, @ptrCast(&ebo));
     // bind vertex array object first to configure vertex attributes (gl.VertexAttribPointer)
     gl.BindVertexArray(vao);
     // fill vbo
     gl.BindBuffer(gl.ARRAY_BUFFER, vbo);
     gl.BufferData(gl.ARRAY_BUFFER, @sizeOf(@TypeOf(vertecies)), @ptrCast(&vertecies), gl.STATIC_DRAW);
+    // set ebo
+    gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo);
+    gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, @sizeOf(@TypeOf(indices)), @ptrCast(&indices), gl.STATIC_DRAW);
     // set vertex attributes
     gl.VertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, 3 * @sizeOf(f32), 0); // pointer = 0 = (*void)0
     gl.EnableVertexAttribArray(0);
@@ -93,6 +109,7 @@ pub fn main() void {
     // ---------------------------
     // LOOP
     // with just `swapBuffers` and `pollEvents` the window will flicker... idk why that is... but after the first draw call its gone
+    // gl.PolygonMode(gl.FRONT_AND_BACK, gl.LINE);
     while (!glfw.windowShouldClose(window)) {
         process_input(window);
         gl.ClearColor(0.2, 0.3, 0.3, 1.0);
@@ -100,7 +117,7 @@ pub fn main() void {
         // DRAW triangle
         gl.UseProgram(shader_prog);
         gl.BindVertexArray(vao);
-        gl.DrawArrays(gl.TRIANGLES, 0, 3);
+        gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, 0);
         glfw.swapBuffers(window);
         glfw.pollEvents();
     }
