@@ -1,6 +1,7 @@
 const std = @import("std");
 const glfw = @import("zglfw");
 const gl = @import("gl");
+const shader = @import("shader.zig");
 
 const triangle = [_]f32{
     // positions   // colors
@@ -42,41 +43,10 @@ pub fn main() void {
     // set viewport
     gl.Viewport(0, 0, 800, 600);
     // ----- PREPARE SHADER -------
-    // vertex shader
-    const vshader: c_uint = gl.CreateShader(gl.VERTEX_SHADER);
-    gl.ShaderSource(vshader, 1, @ptrCast(&vertex_shader), null);
-    gl.CompileShader(vshader);
-    var success: c_int = undefined;
-    var info_log: [512]u8 = undefined;
-    gl.GetShaderiv(vshader, gl.COMPILE_STATUS, &success);
-    if (success == 0) {
-        gl.GetShaderInfoLog(vshader, 512, null, &info_log);
-        std.io.getStdErr().writer().print("Failed to compile Vertex shader\n{s}", .{info_log}) catch {};
+    var myshader = shader.Shader.init("vertex.glsl", "fragment.glsl") catch {
+        std.io.getStdOut().writer().print("Failed to create shader.\n", .{}) catch {};
         return;
-    }
-    // fragment shader
-    const fshader: c_uint = gl.CreateShader(gl.FRAGMENT_SHADER);
-    gl.ShaderSource(fshader, 1, @ptrCast(&fragment_shader), null);
-    gl.CompileShader(fshader);
-    gl.GetShaderiv(fshader, gl.COMPILE_STATUS, &success);
-    if (success == 0) {
-        gl.GetShaderInfoLog(fshader, 512, null, &info_log);
-        std.io.getStdErr().writer().print("Failed to compile Fragment shader\n{s}", .{info_log}) catch {};
-        return;
-    }
-    // shader program for triangle
-    const shader_prog = gl.CreateProgram();
-    gl.AttachShader(shader_prog, vshader);
-    gl.AttachShader(shader_prog, fshader);
-    gl.LinkProgram(shader_prog);
-    gl.GetProgramiv(shader_prog, gl.LINK_STATUS, &success);
-    if (success == 0) {
-        gl.GetProgramInfoLog(shader_prog, 512, null, &info_log);
-        std.io.getStdErr().writer().print("Failed to create shader program\n{s}", .{info_log}) catch {};
-        return;
-    }
-    gl.DeleteShader(vshader);
-    gl.DeleteShader(fshader);
+    };
     // -- vao and vbo --
     // generate vao and vbo
     var vao: c_uint = undefined;
@@ -108,9 +78,8 @@ pub fn main() void {
         process_input(window);
         gl.ClearColor(0.2, 0.3, 0.3, 1.0);
         gl.Clear(gl.COLOR_BUFFER_BIT);
-        gl.UseProgram(shader_prog);
-        const offset_location = gl.GetUniformLocation(shader_prog, "myOffset");
-        gl.Uniform1f(offset_location, 0.35);
+        myshader.use();
+        myshader.setFloat("myOffset", 0.35);
         // DRAW triangle
         gl.BindVertexArray(vao);
         gl.DrawArrays(gl.TRIANGLES, 0, 3);
