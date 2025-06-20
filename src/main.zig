@@ -109,6 +109,8 @@ pub fn main() void {
         gl.ClearColor(0.2, 0.3, 0.3, 1.0);
         gl.Clear(gl.COLOR_BUFFER_BIT);
         gl.UseProgram(shader_prog);
+        const offset_location = gl.GetUniformLocation(shader_prog, "myOffset");
+        gl.Uniform1f(offset_location, 0.35);
         // DRAW triangle
         gl.BindVertexArray(vao);
         gl.DrawArrays(gl.TRIANGLES, 0, 3);
