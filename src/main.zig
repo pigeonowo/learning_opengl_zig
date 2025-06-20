@@ -3,9 +3,10 @@ const glfw = @import("zglfw");
 const gl = @import("gl");
 
 const triangle = [_]f32{
-    0.0, 0.5, 0.0, // top
-    -0.5, -0.5, 0.0, // bottom left
-    0.5, -0.5, 0.0, // bottom right
+    // positions   // colors
+    0.5, -0.5, 0.0, 1.0, 0.0, 0.0, // bottom right
+    -0.5, -0.5, 0.0, 0.0, 1.0, 0.0, // bottom left
+    0.0, 0.5, 0.0, 0.0, 0.0, 1.0, // top
 };
 
 const vertex_shader = @embedFile("vertex.glsl");
@@ -88,8 +89,12 @@ pub fn main() void {
     gl.BindBuffer(gl.ARRAY_BUFFER, vbo);
     gl.BufferData(gl.ARRAY_BUFFER, @sizeOf(@TypeOf(triangle)), @ptrCast(&triangle), gl.STATIC_DRAW);
     // set vertex attributes
-    gl.VertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, 3 * @sizeOf(f32), 0); // pointer = 0 = (*void)0
+    // set position vertex attribute
+    gl.VertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, 6 * @sizeOf(f32), 0); // pointer = 0 = (*void)0
     gl.EnableVertexAttribArray(0);
+    // set color vertex attribute
+    gl.VertexAttribPointer(1, 3, gl.FLOAT, gl.FALSE, 6 * @sizeOf(f32), 3 * @sizeOf(f32)); // pointer = 0 = (*void)0
+    gl.EnableVertexAttribArray(1);
 
     // "unbind" buffers (not directly needed)
     gl.BindBuffer(gl.ARRAY_BUFFER, 0);
@@ -104,11 +109,6 @@ pub fn main() void {
         gl.ClearColor(0.2, 0.3, 0.3, 1.0);
         gl.Clear(gl.COLOR_BUFFER_BIT);
         gl.UseProgram(shader_prog);
-        // update uniform
-        const time_value: f32 = @floatCast(glfw.getTime());
-        const green_value = (std.math.sin(time_value) / 2.0) + 0.5;
-        const vertex_color_location = gl.GetUniformLocation(shader_prog, "myColor");
-        gl.Uniform4f(vertex_color_location, 0.0, green_value, 0.0, 1.0);
         // DRAW triangle
         gl.BindVertexArray(vao);
         gl.DrawArrays(gl.TRIANGLES, 0, 3);
