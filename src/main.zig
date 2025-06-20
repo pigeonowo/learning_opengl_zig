@@ -2,20 +2,14 @@ const std = @import("std");
 const glfw = @import("zglfw");
 const gl = @import("gl");
 
-const triangle1 = [_]f32{
-    -0.5, 0.5, 0.0, // top
-    -0.1, -0.5, 0.0, // bottom right
-    -0.9, -0.5, 0.0, // bottom left
-};
-const triangle2 = [_]f32{
-    0.5, 0.5, 0.0, // top
-    0.1, -0.5, 0.0, // bottom right
-    0.9, -0.5, 0.0, // bottom left
+const triangle = [_]f32{
+    0.0, 0.5, 0.0, // top
+    -0.5, -0.5, 0.0, // bottom left
+    0.5, -0.5, 0.0, // bottom right
 };
 
 const vertex_shader = @embedFile("vertex.glsl");
 const fragment_shader = @embedFile("fragment.glsl");
-const fragment_shader2 = @embedFile("fragment2.glsl");
 
 pub fn main() void {
     // init glfw and window
@@ -69,17 +63,7 @@ pub fn main() void {
         std.io.getStdErr().writer().print("Failed to compile Fragment shader\n{s}", .{info_log}) catch {};
         return;
     }
-    // fragment shader 2
-    const fshader2: c_uint = gl.CreateShader(gl.FRAGMENT_SHADER);
-    gl.ShaderSource(fshader2, 1, @ptrCast(&fragment_shader2), null);
-    gl.CompileShader(fshader2);
-    gl.GetShaderiv(fshader2, gl.COMPILE_STATUS, &success);
-    if (success == 0) {
-        gl.GetShaderInfoLog(fshader2, 512, null, &info_log);
-        std.io.getStdErr().writer().print("Failed to compile Fragment shader 2\n{s}", .{info_log}) catch {};
-        return;
-    }
-    // shader program for first triangle
+    // shader program for triangle
     const shader_prog = gl.CreateProgram();
     gl.AttachShader(shader_prog, vshader);
     gl.AttachShader(shader_prog, fshader);
@@ -90,46 +74,19 @@ pub fn main() void {
         std.io.getStdErr().writer().print("Failed to create shader program\n{s}", .{info_log}) catch {};
         return;
     }
-    // shader program for second triangle
-    const shader_prog2 = gl.CreateProgram();
-    gl.AttachShader(shader_prog2, vshader);
-    gl.AttachShader(shader_prog2, fshader2);
-    gl.LinkProgram(shader_prog2);
-    gl.GetProgramiv(shader_prog2, gl.LINK_STATUS, &success);
-    if (success == 0) {
-        gl.GetProgramInfoLog(shader_prog2, 512, null, &info_log);
-        std.io.getStdErr().writer().print("Failed to create shader program\n{s}", .{info_log}) catch {};
-        return;
-    }
     gl.DeleteShader(vshader);
     gl.DeleteShader(fshader);
-    gl.DeleteShader(fshader2);
     // -- vao and vbo --
     // generate vao and vbo
-    var vao1: c_uint = undefined;
-    var vbo1: c_uint = undefined;
-    gl.GenBuffers(1, @ptrCast(&vbo1));
-    gl.GenVertexArrays(1, @ptrCast(&vao1));
-    var vao2: c_uint = undefined;
-    var vbo2: c_uint = undefined;
-    gl.GenBuffers(1, @ptrCast(&vbo2));
-    gl.GenVertexArrays(1, @ptrCast(&vao2));
-    // triangle 1
+    var vao: c_uint = undefined;
+    var vbo: c_uint = undefined;
+    gl.GenBuffers(1, @ptrCast(&vbo));
+    gl.GenVertexArrays(1, @ptrCast(&vao));
     // bind vertex array object first to configure vertex attributes (gl.VertexAttribPointer)
-    gl.BindVertexArray(vao1);
+    gl.BindVertexArray(vao);
     // fill vbo
-    gl.BindBuffer(gl.ARRAY_BUFFER, vbo1);
-    gl.BufferData(gl.ARRAY_BUFFER, @sizeOf(@TypeOf(triangle1)), @ptrCast(&triangle1), gl.STATIC_DRAW);
-    // set vertex attributes
-    gl.VertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, 3 * @sizeOf(f32), 0); // pointer = 0 = (*void)0
-    gl.EnableVertexAttribArray(0);
-
-    // triangle 1
-    // bind vertex array object first to configure vertex attributes (gl.VertexAttribPointer)
-    gl.BindVertexArray(vao2);
-    // fill vbo
-    gl.BindBuffer(gl.ARRAY_BUFFER, vbo2);
-    gl.BufferData(gl.ARRAY_BUFFER, @sizeOf(@TypeOf(triangle2)), @ptrCast(&triangle2), gl.STATIC_DRAW);
+    gl.BindBuffer(gl.ARRAY_BUFFER, vbo);
+    gl.BufferData(gl.ARRAY_BUFFER, @sizeOf(@TypeOf(triangle)), @ptrCast(&triangle), gl.STATIC_DRAW);
     // set vertex attributes
     gl.VertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, 3 * @sizeOf(f32), 0); // pointer = 0 = (*void)0
     gl.EnableVertexAttribArray(0);
@@ -148,10 +105,7 @@ pub fn main() void {
         gl.Clear(gl.COLOR_BUFFER_BIT);
         // DRAW triangle
         gl.UseProgram(shader_prog);
-        gl.BindVertexArray(vao1);
-        gl.DrawArrays(gl.TRIANGLES, 0, 3);
-        gl.UseProgram(shader_prog2);
-        gl.BindVertexArray(vao2);
+        gl.BindVertexArray(vao);
         gl.DrawArrays(gl.TRIANGLES, 0, 3);
         glfw.swapBuffers(window);
         glfw.pollEvents();
