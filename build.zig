@@ -21,6 +21,9 @@ pub fn build(b: *std.Build) void {
     // zglfw
     const zglfw = b.dependency("zglfw", .{ .target = target, .optimize = optimize });
     exe.root_module.addImport("zglfw", zglfw.module("glfw"));
+    // zstbi
+    const zstbi = b.dependency("zstbi", .{});
+    exe.root_module.addImport("zstbi", zstbi.module("root"));
 
     b.installArtifact(exe);
     const run_cmd = b.addRunArtifact(exe);
