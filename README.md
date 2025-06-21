@@ -8,8 +8,8 @@ I used `zigglgen` for the opengl bindings for zig, `zglfw` for the glfw binding 
 commit: f616514733b81e5b00cc2d839c83c8e529ff5c4f
 ### zglfw
 You have to have the `libglfw3-dev` package installed.
-`zig fetch --save git+https://github.com/ziglibs/zgl.git`
-commit: f616514733b81e5b00cc2d839c83c8e529ff5c4f
+`zig fetch --save git+https://github.com/castholm/zigglgen`
+commit: d5f381759825ee0bac29bc294d47aa05be4ab7b5
 ### zstbi
 The book uses the `stb_image.h` header but I found this zig version :)
 `zig fetch --save git+https://github.com/zig-gamedev/zstbi`
